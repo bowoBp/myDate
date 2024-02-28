@@ -6,3 +6,6 @@ migrate_up:
 
 migrate_down:
 	migrate -database ${PSQL_MIGRATION_URL} -path pkg/db/migration/sql down 1
+
+fix_migrate_psql_dirty:
+	migrate --path pkg/db/migration/sql -database ${PSQL_MIGRATION_URL} force 1
