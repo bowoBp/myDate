@@ -33,4 +33,9 @@ type (
 		Otp         int                 `json:"otp"`
 		EmailResult lib.CreateSmtpEmail `json:"emailResult"`
 	}
+
+	VerifyOtpPayload struct {
+		Otp    string `json:"otpCode" validate:"numeric"`
+		UserID uint64 `json:"userId" validate:"numeric"`
+	}
 )

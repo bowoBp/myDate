@@ -3,7 +3,7 @@ package mapper
 import "gorm.io/driver/postgres"
 
 type (
-	Mapper struct {
+	Mappers struct {
 	}
 
 	MapperUtility interface {
@@ -17,3 +17,32 @@ type (
 		UniqueByStructField(vals interface{}, fieldName string) interface{}
 	}
 )
+
+func (m Mappers) ReplaceLabelErr(template error, params ...string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m Mappers) ErrorIs(template error, targer error) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m Mappers) TranslateSQLErr(mySqlErr *postgres.ErrMessage, methodName string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m Mappers) CompareSliceOfErr(errs []error, target error) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m Mappers) EvaluateError(label string, expectedErr []error, err error) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func Default() MapperUtility {
+	return &Mappers{}
+}

@@ -32,6 +32,10 @@ type (
 	}
 )
 
+func DefaultMaker() Generator {
+	return Engine{}
+}
+
 func (dc Engine) GenerateHashValue(
 	secretKey string,
 	uniqueID string,

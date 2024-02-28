@@ -36,6 +36,7 @@ type (
 			ctx context.Context,
 			payload RegisterPayload,
 		) (result RegisterResult, err error)
+		VerifyOtp(ctx context.Context, payload VerifyOtpPayload) (bool, error)
 	}
 )
 
@@ -81,6 +82,48 @@ func (uc UseCase) AddUser(
 		return RegisterResult{}, fmt.Errorf("uc.userRepo.UpdateSelecteField: %w", err)
 	}
 	return result, nil
+}
+
+func (uc UseCase) VerifyOtp(ctx context.Context, payload VerifyOtpPayload) (bool, error) {
+	user, err := uc.userRepo.GetUserByID(ctx, uint(payload.UserID))
+	if err != nil {
+		log.Println(err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, constant.ErrUserNameNotFound
+		}
+		return false, fmt.Errorf("uc.userRepo.GetUserByID: %w", err)
+	}
+
+	otp, err := strconv.ParseInt(payload.Otp, 10, 32)
+	if err != nil {
+		log.Println(err)
+		return false, fmt.Errorf("strconv.ParseInt: %w", err)
+	}
+
+	if user.IsActive {
+		return true, nil
+	}
+
+	switch user.Otp {
+	case 0:
+		return false, constant.ErrNewOtpRequired
+	case int(otp):
+		user.IsActive = true
+		_, err = uc.userRepo.UpdateSelectedField(ctx, user, "is_active")
+		if err != nil {
+			log.Println(err)
+			return false, fmt.Errorf("userRepo.UpdateSelecteField: %w", err)
+		}
+		return true, nil
+	default:
+		user.Otp = 0
+		_, err := uc.userRepo.UpdateSelectedField(ctx, user, "OTPCode")
+		if err != nil {
+			log.Println(err)
+			return false, fmt.Errorf("userRepo.UpdateSelecteField: %w", err)
+		}
+		return false, constant.ErrOtpInvalid
+	}
 }
 
 func (uc UseCase) registerUser(

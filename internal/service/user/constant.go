@@ -11,3 +11,9 @@ var registerErrs = []error{
 	constant.ErrEmailIsUsedGeneric,
 	constant.ErrPhoneIsUsedGeneric,
 }
+
+var verifyOtpErrs = []error{
+	constant.ErrOtpInvalid,
+	constant.ErrUserNameNotFound,
+	constant.ErrNewOtpRequired,
+}
