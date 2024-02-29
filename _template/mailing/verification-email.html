@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Email Verification</title>
+</head>
+<body>
+<div style="display: block; width: 100%; align-items: center; text-align: center; margin-top: 1.25rem; font-family: Nunito, sans-serif">
+    <div style="height: 120px; background-color: #55CBCD; width: 100%; color: #fff; text-align: center; padding-top: 60px">
+        <div style="text-align: center;">
+        </div>
+        <div style="text-align: center;">
+            <div style="text-align: center; font-size: 14px; font-weight: normal;">
+                Terima Kasih Telah Memilih Layanan kami
+            </div>
+            <div
+                    class=""
+                    style="font-size: 24px; font-weight: bold; text-transform: capitalize; text-align: center"
+            >
+                Konfirmasi Alamat E-Mail Anda
+            </div>
+        </div>
+    </div>
+    <main style="margin-top: 2rem; padding-left: 1.25rem; padding-right: 1.25rem;">
+        <p style="line-height: 1.5; color: #4b5563;">
+            Halo {{.Name}}, Kode OTP anda adalah sebagai berikut
+        </p>
+        <div style="text-align: center; margin-top: 1rem;">
+            {{range .OTPs}}
+            <p
+                    style="
+                        display: inline-block; text-align: center;
+                        width: 2rem; height: 2rem;font-size: 23px;
+                        font-weight: bold;">
+                {{.}}
+            </p>
+            {{end}}
+        </div>
+        <p style="margin-top: 1rem; line-height: 1.75; color: #4b5563;">
+            Kode ini berlaku untuk
+            <span style="font-weight: bold;"> 1 menit</span> kedepan. Anda dapat masukkan ke halaman verifikasi pada
+            tombol berikut:
+        </p>
+        <a href='{{.VerifyPage}}' style="color: #365cce; text-decoration: none;">
+            <button style="padding-left: 1.25rem; padding-right: 1.25rem; padding-top: 0.5rem; padding-bottom: 0.5rem; margin-top: 1.5rem; font-size: 14px; font-weight: bold; text-transform: capitalize; background-color: #f97316; color: #fff; transition-property: background-color; transition-duration: 300ms; transform: none; border-radius: 0.375rem; border-width: 1px; border: none; outline: none; cursor: pointer; display: inline-block;">
+                Verify email
+            </button>
+        </a>
+        <p style="margin-top: 2rem; color: #4b5563; ">
+            Terima kasih, <br/>
+            Kasir Bersih Team.
+        </p>
+    </main>
+    <p style="color: #7b8794; padding-left: 1.25rem; padding-right: 1.25rem; margin-top: 2rem;">
+        <span style="color: crimson">Hindari penipuan!</span> Jangan berikan Kode OTP kepada siapapun. Kasir Bersih
+        tidak bertanggung jawab atas kerugian yang disebabkan kelalaian pribadi.
+    </p>
+    <hr>
+    <div style="display: block;margin-top: 2rem; text-align: center">
+        <div style="display: block;padding: 60px; text-align: center;">
+            <div style="display: block; text-align: center;">
+                <div style="display: block;">
+                    <p>Manajemen Laundry yang Efisien</p>
+                </div>
+            </div>
+            <div style="display: block;">
+                <h3>Hubungi Kami</h3>
+                <div style="display: block;">
+                    <p>support@kasirbersih.id</p>
+                    <div style="display: block;">
+                        <p>Tegallega, Bogor Tengah, Bogor City, West Java 16129</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -37,13 +37,18 @@ func NewConfig() SendInBlueInterface {
 func (sib SendInBlue) NativeSendEmail(ctx context.Context, payload NativeSendEmailPayload) error {
 	auth := smtp.PlainAuth("", payload.Username, payload.Password, payload.Host)
 	messageBody := fmt.Sprintf(
-		"From:  <%s>\n"+
+		"From: <%s>\n"+
 			"To: <%s>\r\n"+
-			"Subject: %s\r\n",
+			"Subject: %s\r\n"+
+			"MIME-version: 1.0;\r\n"+
+			"Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n"+
+			"%s",
 		payload.Username,
 		payload.SendTo,
 		payload.Subject,
+		payload.HtmlBody,
 	)
+
 	messageBody += "MIME-version: 1.0;\r\n"
 	messageBody += "Content-Type: text/html; charset=\"UTF-8\"\r\n"
 	messageBody += payload.HtmlBody

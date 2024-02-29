@@ -39,7 +39,6 @@ func (ctrl Controller) AddUser(
 ) (*dto.Response, error) {
 	start := time.Now()
 	result, err := ctrl.uc.AddUser(ctx, payload)
-	err = ctrl.mapper.EvaluateError("ctrl.Uc.Register", registerErrs, err)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -57,7 +56,6 @@ func (ctrl Controller) VerifyOtp(
 ) (*dto.Response, error) {
 	start := time.Now()
 	result, err := ctrl.uc.VerifyOtp(ctx, payload)
-	err = ctrl.mapper.EvaluateError("ctrl.Uc.VerifyOtp", verifyOtpErrs, err)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -79,7 +77,6 @@ func (ctrl Controller) Login(
 	start := time.Now()
 
 	user, token, err := ctrl.uc.Login(ctx, payload)
-	err = ctrl.mapper.EvaluateError("ctrl.Uc.Login", loginErrs, err)
 
 	loginData := LoginResponseData[LoginUserResponseData]{
 		User: LoginUserResponseData{

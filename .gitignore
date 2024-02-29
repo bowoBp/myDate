@@ -1,0 +1,14 @@
+/.idea
+.env*
+
+.vercel
+/vendor
+
+mock_*
+.scannerwork
+
+
+
+log/*
+deployment/systemctl/kassir-bersih-*
+nohup.out

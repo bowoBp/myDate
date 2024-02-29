@@ -43,7 +43,7 @@ type (
 		Login(
 			ctx context.Context,
 			payload LoginPayload,
-		) (domains.User, string, error)
+		) (domains.Users, string, error)
 	}
 )
 
@@ -70,7 +70,7 @@ func (uc UseCase) AddUser(
 		ctx,
 		SendOtpPayload{
 			Email:  payload.Email,
-			Name:   payload.Name,
+			Name:   payload.UserName,
 			UserID: uint64(user.UserID),
 		},
 		false,
@@ -116,7 +116,13 @@ func (uc UseCase) VerifyOtp(ctx context.Context, payload VerifyOtpPayload) (bool
 		return false, constant.ErrNewOtpRequired
 	case int(otp):
 		user.IsActive = true
-		_, err = uc.userRepo.UpdateSelectedField(ctx, user, "is_active")
+		_, err = uc.userRepo.UpdateIsVerify(
+			ctx,
+			user,
+			map[string]any{
+				"is_active": user.IsActive,
+			},
+		)
 		if err != nil {
 			log.Println(err)
 			return false, fmt.Errorf("userRepo.UpdateSelecteField: %w", err)
@@ -136,20 +142,20 @@ func (uc UseCase) VerifyOtp(ctx context.Context, payload VerifyOtpPayload) (bool
 func (uc UseCase) registerUser(
 	ctx context.Context,
 	payload RegisterPayload,
-) (result *domains.User, err error) {
+) (result *domains.Users, err error) {
 	encryptPwd, err := uc.maker.EncryptMessage(
 		[]byte(uc.env.Get("SECRET_ENCRYPTION_PASS")),
 		[]byte(payload.Password),
 	)
 	if err != nil {
 		log.Println(err)
-		return &domains.User{}, fmt.Errorf("uc.maker.HashAndSalt: %w", err)
+		return &domains.Users{}, fmt.Errorf("uc.maker.HashAndSalt: %w", err)
 	}
 	user, errAdd := uc.userRepo.AddUser(
 		ctx,
-		&domains.User{
+		&domains.Users{
 
-			Username:         payload.Name,
+			Username:         payload.UserName,
 			Email:            payload.Email,
 			Password:         hex.EncodeToString(encryptPwd),
 			RegistrationDate: time.Now(),
@@ -169,7 +175,7 @@ func (uc UseCase) GenerateAndSendOTP(
 	result SendOtpResult,
 	err error,
 ) {
-	var user *domains.User
+	var user *domains.Users
 	if regenerate {
 		user, err = uc.userRepo.GetUserByID(ctx, uint(emailPayload.UserID))
 		if err != nil {
@@ -245,15 +251,15 @@ func (uc UseCase) sendEmail(ctx context.Context, emailPayload SendOtpPayload) er
 func (uc UseCase) Login(
 	ctx context.Context,
 	payload LoginPayload,
-) (domains.User, string, error) {
+) (domains.Users, string, error) {
 	user, err := uc.userRepo.GetUserByEmail(ctx, payload.Email)
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return domains.User{}, "", constant.ErrUserNameNotFound
+			return domains.Users{}, "", constant.ErrUserNameNotFound
 
 		}
-		return domains.User{}, "", fmt.Errorf("account.GetUserByUsername: %w", err)
+		return domains.Users{}, "", fmt.Errorf("account.GetUserByUsername: %w", err)
 	}
 
 	if user.IsActive == false {
@@ -267,15 +273,15 @@ func (uc UseCase) Login(
 			true)
 		if err != nil {
 			log.Println(err)
-			return domains.User{}, "", fmt.Errorf("uc.GenerateAndSendOTP: %w", err)
+			return domains.Users{}, "", fmt.Errorf("uc.GenerateAndSendOTP: %w", err)
 		}
-		return domains.User{}, "", constant.ErrEmailIsNotVerified
+		return domains.Users{}, "", constant.ErrEmailIsNotVerified
 	}
 
 	chiperPass, err := hex.DecodeString(user.Password)
 	if err != nil {
 		log.Println(err)
-		return domains.User{}, "", fmt.Errorf("hex.DecodeString: %w", err)
+		return domains.Users{}, "", fmt.Errorf("hex.DecodeString: %w", err)
 	}
 	rawPass, err := uc.maker.DecryptMessage(
 		[]byte(uc.env.Get("SECRET_ENCRYPTION_PASS")),
@@ -284,13 +290,13 @@ func (uc UseCase) Login(
 	if err != nil {
 		log.Println(err)
 		if constant.ErrAesChipper.Error() == err.Error() {
-			return domains.User{}, "", constant.ErrPasswordIsWrong
+			return domains.Users{}, "", constant.ErrPasswordIsWrong
 		}
-		return domains.User{}, "", fmt.Errorf("uc.davinci.DecryptMessage: %w", err)
+		return domains.Users{}, "", fmt.Errorf("uc.davinci.DecryptMessage: %w", err)
 	}
 
 	if string(rawPass) != payload.Password {
-		return domains.User{}, "", constant.ErrPasswordIsWrong
+		return domains.Users{}, "", constant.ErrPasswordIsWrong
 	}
 
 	issuedAt := jwt.NewNumericDate(uc.clock.Now(ctx))
@@ -307,7 +313,7 @@ func (uc UseCase) Login(
 	})
 	if err != nil {
 		log.Println(err)
-		return domains.User{}, "", fmt.Errorf("auth.SignClaim: %w", err)
+		return domains.Users{}, "", fmt.Errorf("auth.SignClaim: %w", err)
 	}
 
 	return user, token, nil

@@ -9,3 +9,6 @@ migrate_down:
 
 fix_migrate_psql_dirty:
 	migrate --path pkg/db/migration/sql -database ${PSQL_MIGRATION_URL} force 1
+
+generate_mock:
+	mockery --all --keeptree --case underscore --with-expecter
