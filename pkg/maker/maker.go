@@ -29,6 +29,7 @@ type (
 			counter uint64,
 		) (int, error)
 		EncryptMessage(key, data []byte) ([]byte, error)
+		DecryptMessage(key, data []byte) ([]byte, error)
 	}
 )
 
@@ -139,4 +140,36 @@ func (d Engine) EncryptMessage(key, data []byte) ([]byte, error) {
 	ciphertext = append(ciphertext, salt...)
 
 	return ciphertext, nil
+}
+
+func (d Engine) DecryptMessage(key, data []byte) ([]byte, error) {
+	salt, data := data[len(data)-32:], data[:len(data)-32]
+
+	key, _, err := d.DeriveKey(key, salt)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(blockCipher)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	nonce, ciphertext := data[:gcm.NonceSize()], data[gcm.NonceSize():]
+
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return plaintext, nil
 }

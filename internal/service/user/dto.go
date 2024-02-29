@@ -1,6 +1,9 @@
 package user
 
-import "github.com/sendinblue/APIv3-go-library/v2/lib"
+import (
+	"github.com/bowoBp/myDate/internal/dto"
+	"github.com/sendinblue/APIv3-go-library/v2/lib"
+)
 
 type (
 	RegisterPayload struct {
@@ -37,5 +40,26 @@ type (
 	VerifyOtpPayload struct {
 		Otp    string `json:"otpCode" validate:"numeric"`
 		UserID uint64 `json:"userId" validate:"numeric"`
+	}
+
+	LoginPayload struct {
+		Email    string `json:"email"`
+		Password string `json:"password" validate:"required"`
+	}
+	ResponseMetaLogin struct {
+		dto.Response
+		IsVerified   bool `json:"isVerified"`
+		IsRegistered bool `json:"isRegistered"`
+	}
+
+	LoginResponseData[Data any] struct {
+		User  Data   `json:"user"`
+		Token string `json:"token"`
+	}
+
+	LoginUserResponseData struct {
+		ID       int    `json:"id"`
+		Username string `json:"username"`
+		Email    string `json:"email"`
 	}
 )

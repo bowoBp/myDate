@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/bowoBp/myDate/internal/constant"
 	"github.com/bowoBp/myDate/internal/dto"
@@ -25,6 +26,10 @@ type (
 			ctx context.Context,
 			payload VerifyOtpPayload,
 		) (*dto.Response, error)
+		Login(
+			ctx context.Context,
+			payload LoginPayload,
+		) (ResponseMetaLogin, error)
 	}
 )
 
@@ -65,4 +70,71 @@ func (ctrl Controller) VerifyOtp(
 		"Email has been verified succesfully",
 		fmt.Sprint(time.Since(start).Milliseconds(), " ms."),
 	), nil
+}
+
+func (ctrl Controller) Login(
+	ctx context.Context,
+	payload LoginPayload,
+) (ResponseMetaLogin, error) {
+	start := time.Now()
+
+	user, token, err := ctrl.uc.Login(ctx, payload)
+	err = ctrl.mapper.EvaluateError("ctrl.Uc.Login", loginErrs, err)
+
+	loginData := LoginResponseData[LoginUserResponseData]{
+		User: LoginUserResponseData{
+			ID:       int(user.UserID),
+			Username: user.Username,
+			Email:    user.Email,
+		},
+		Token: token,
+	}
+
+	if err != nil {
+		log.Println(err)
+		var (
+			isVerified   = true
+			isRegistered = true
+			msgErr       = ""
+		)
+		switch {
+		case errors.Is(err, constant.ErrUserNameNotFound):
+			isRegistered = false
+			isVerified = false
+			msgErr = constant.ErrUserNameNotFound.Error()
+			break
+		case errors.Is(err, constant.ErrEmailIsNotVerified):
+			isVerified = false
+			msgErr = constant.ErrEmailIsNotVerified.Error()
+			break
+		default:
+			break
+		}
+		return ResponseMetaLogin{
+			Response: dto.Response{
+				ResponseMeta: dto.ResponseMeta{
+					Success:      false,
+					Message:      msgErr,
+					ResponseTime: fmt.Sprint(time.Since(start).Milliseconds(), ".ms"),
+				},
+				Data: loginData,
+			},
+			IsVerified:   isVerified,
+			IsRegistered: isRegistered,
+		}, err
+	}
+
+	return ResponseMetaLogin{
+		Response: dto.Response{
+			ResponseMeta: dto.ResponseMeta{
+				Success:      true,
+				MessageTitle: "Success",
+				Message:      "berhasil login",
+				ResponseTime: fmt.Sprint(time.Since(start).Milliseconds(), ".ms"),
+			},
+			Data: loginData,
+		},
+		IsVerified:   true,
+		IsRegistered: true,
+	}, err
 }

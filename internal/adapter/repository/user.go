@@ -24,7 +24,7 @@ type (
 		GetUserByEmail(
 			ctx context.Context,
 			email string,
-		) (user *domains.User, err error)
+		) (user domains.User, err error)
 		UpdateSelectedField(
 			ctx context.Context,
 			user *domains.User,
@@ -60,7 +60,7 @@ func (repo UserRepo) GetUserByID(
 func (repo UserRepo) GetUserByEmail(
 	ctx context.Context,
 	email string,
-) (user *domains.User, err error) {
+) (user domains.User, err error) {
 	err = repo.db.WithContext(ctx).
 		First(&user, email).
 		Error

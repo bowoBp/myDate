@@ -14,4 +14,7 @@ var (
 	ErrUserNameNotFound    = fmt.Errorf("Username atau email anda tidak ditemukan")
 	ErrNewOtpRequired      = fmt.Errorf("Kode OTP anda telah kedaluwarsa")
 	ErrOtpInvalid          = fmt.Errorf("Kode OTP yang anda masukan salah")
+	ErrEmailIsNotVerified  = fmt.Errorf("Email anda sudah terdaftar, tetapi belum melakukan verifikasi.")
+	ErrAesChipper          = fmt.Errorf("cipher: message authentication failed")
+	ErrPasswordIsWrong     = fmt.Errorf("Password yang anda masukan salah")
 )

@@ -55,9 +55,9 @@ func (r Router) Route(router *gin.RouterGroup) {
 		"/register",
 		r.rq.Register,
 	)
-
 	account.POST(
 		"/verify-otp",
 		r.rq.Verify,
 	)
+	account.POST("/login", r.rq.Login)
 }

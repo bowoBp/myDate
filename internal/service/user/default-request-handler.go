@@ -1,6 +1,8 @@
 package user
 
 import (
+	"errors"
+	"github.com/bowoBp/myDate/internal/constant"
 	"github.com/bowoBp/myDate/internal/dto"
 	"github.com/bowoBp/myDate/pkg/mapper"
 	middleware2 "github.com/bowoBp/myDate/pkg/middleware"
@@ -59,6 +61,33 @@ func (rh RequestHandler) Verify(context *gin.Context) {
 			context.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
 			return
 		}
+	}
+	context.JSON(http.StatusOK, res)
+}
+
+func (rh RequestHandler) Login(context *gin.Context) {
+	var payload = LoginPayload{}
+	if err := rh.enigma.BindAndValidate(context, &payload); len(err) > 0 {
+		context.JSON(http.StatusBadRequest, dto.DefaultInvalidInputFormResponse(err))
+		return
+	}
+
+	res, err := rh.ctrl.Login(context.Request.Context(), payload)
+	if err != nil {
+		log.Println(err)
+		switch {
+		case rh.mapper.CompareSliceOfErr(loginErrs, err):
+			if errors.Is(constant.ErrEmailIsNotVerified, err) ||
+				errors.Is(constant.ErrUserNameNotFound, err) {
+				res.MessageTitle = "Invalid data."
+				context.JSON(http.StatusBadRequest, res)
+				return
+			}
+			context.JSON(http.StatusBadRequest, dto.DefaultErrorResponseWithMessage(err.Error()))
+		default:
+			context.JSON(http.StatusInternalServerError, dto.DefaultErrorResponseWithMessage(err.Error()))
+		}
+		return
 	}
 	context.JSON(http.StatusOK, res)
 }

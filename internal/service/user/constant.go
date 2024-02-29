@@ -17,3 +17,9 @@ var verifyOtpErrs = []error{
 	constant.ErrUserNameNotFound,
 	constant.ErrNewOtpRequired,
 }
+
+var loginErrs = []error{
+	constant.ErrUserNameNotFound,
+	constant.ErrPasswordIsWrong,
+	constant.ErrEmailIsNotVerified,
+}
